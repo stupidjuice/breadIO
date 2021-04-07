@@ -27,13 +27,16 @@ public class BreadIO
                 try
                 {
                     readString = sr.ReadToEnd();
+                    sr.Close()
                 }
                 catch (IOException)
                 {
+                    sr.Close()
                     return "IO Exception Error";
                 }
                 catch (OutOfMemoryException)
                 {
+                    sr.Close()
                     return "Out of memory Exception";
                 }
                 return readString;
@@ -56,5 +59,11 @@ public class BreadIO
             {
             return sr.ReadToEnd();
         }
+    }
+
+    //write to files
+    public static void Write(string path, string text)
+    {
+        using (StreamWriter sw = File.WriteAllText(path, text))
     }
 }

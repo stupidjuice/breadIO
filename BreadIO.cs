@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
 
 /*
 This code may be used for any purpose, no attribution required.
@@ -27,24 +28,19 @@ public class BreadIO
                 try
                 {
                     readString = sr.ReadToEnd();
-                    sr.Close()
+                    sr.Close();
                 }
-                catch (IOException)
+                catch (Exception)
                 {
-                    sr.Close()
-                    return "IO Exception Error";
-                }
-                catch (OutOfMemoryException)
-                {
-                    sr.Close()
-                    return "Out of memory Exception";
+                    sr.Close();
+                    return null;
                 }
                 return readString;
             }
         }
         else
         {
-            return "File Not Found at " + path + " or path is an empty string";
+            return null;
         }
     }
 
@@ -55,15 +51,58 @@ public class BreadIO
     /// <returns></returns>
     public static string FastRead(string path)
     {
-        using (StreamReader sr = File.OpenText(path)
-            {
+        using (StreamReader sr = File.OpenText(path))
+        {
             return sr.ReadToEnd();
         }
     }
 
+    /// <summary>
+    /// Standard File Reading System for more secure files used in Sometimes Bread Games. Is not fully safe, but safer than non serialized files. Should not be called to often as performance is not guaranteed.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <returns></returns>
+    public static string ReadSerialized(string path)
+    {
+        if(File.Exists(path))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream fs = new FileStream(path, FileMode.Open);
+            string readData = bf.Deserialize(fs) as string;
+            fs.Close();
+            return readData;
+        }
+        else
+        {
+            return null;
+        }
+    }
+
     //write to files
+
+    /// <summary>
+    /// Standard File Writing System used in Sometimes Bread Games. Its not really that much code but still. This can be called often (not reccomended for the sake of the poor HDD/SSD, but can be done).
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="text"></param>
     public static void Write(string path, string text)
     {
-        using (StreamWriter sw = File.WriteAllText(path, text))
+        File.WriteAllText(path, text);
     }
+
+    //write serialized
+
+    /// <summary>
+    /// Standard File Writing System for more secure files used in Sometimes Bread Games. Is not fully safe, but safer than non serialized files. Should not be called too often as performance is not guaranteed.
+    /// </summary>
+    /// <param name="path"></param>
+    /// <param name="text"></param>
+    public static void WriteSerialized(string path, string text)
+    {
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream fs = new FileStream(path, FileMode.Create);
+        bf.Serialize(fs, text);
+        fs.Close();
+    }
+
 }
